@@ -1,12 +1,27 @@
 import { useVehiculos } from './useVehiculos'
 import { useChoferes } from './useChoferes'
 import { useMantenimientos } from './useMantenimientos'
-import type { DashboardStats, VehiculoConSeguimiento } from '~/types/database'
+import type { Chofer, DashboardStats, VehiculoConSeguimiento } from '~/types/database'
 
 export function useDashboard() {
   const { obtenerConSeguimiento } = useVehiculos()
   const { obtenerTodos: obtenerChoferes } = useChoferes()
   const { obtenerTodos: obtenerMantenimientos } = useMantenimientos()
+
+  function contarChoferesDiferentes(choferes: Chofer[]): number {
+    const nombresUnicos = new Set(
+      choferes.map(chofer =>
+        `${chofer.nombre} ${chofer.apellido}`
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .trim()
+          .replace(/\s+/g, ' ')
+          .toLocaleLowerCase('es')
+      )
+    )
+
+    return nombresUnicos.size
+  }
 
   async function obtenerEstadisticas(): Promise<DashboardStats> {
     const [vehiculos, choferes, mantenimientos] = await Promise.all([
@@ -25,7 +40,7 @@ export function useDashboard() {
 
     return {
       total_vehiculos: vehiculos.length,
-      total_choferes: choferes.length,
+      total_choferes: contarChoferesDiferentes(choferes),
       total_mantenimientos: mantenimientos.length,
       mantenimientos_mes_actual: mantenimientosMesActual,
       proximos_vencidos: vehiculos.filter(v => v.proximo_servicio?.vencido).length,

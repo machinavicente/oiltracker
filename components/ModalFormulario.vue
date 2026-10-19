@@ -76,8 +76,8 @@
             <div class="form-field">
               <label class="label">Tipo de Seguimiento <span class="text-error">*</span></label>
               <select v-model="form.mantenimiento.usa_kilometraje" class="select select-primary" required>
-                <option value="false">Por Fecha</option>
-                <option value="true">Por Kilometraje</option>
+                <option :value="false">Por Fecha</option>
+                <option :value="true">Por Kilometraje</option>
               </select>
             </div>
           </div>
