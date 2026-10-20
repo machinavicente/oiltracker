@@ -59,7 +59,7 @@ export interface DashboardStats {
   total_mantenimientos: number
   mantenimientos_mes_actual: number
   proximos_vencidos: number
-  mantenimientos_3_4_dias: number
+  mantenimientos_por_vencer: number
   por_kilometraje: number
   por_fecha: number
 }

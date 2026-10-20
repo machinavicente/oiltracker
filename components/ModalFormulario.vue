@@ -1,36 +1,66 @@
 <template>
   <div class="modal" @click.self="$emit('cerrar')">
-    <div class="modal-box max-w-4xl modal-form-dialog">
+    <div class="modal-box max-w-5xl modal-form-dialog">
       <div class="modal-form-header">
-        <div>
-          <h3 class="card-title text-2xl flex items-center gap-2">
-            <i class="ri-add-circle-line ri-xl text-primary"></i>
-            Nuevo Registro Completo
-          </h3>
-          <p class="text-sm text-base-content/60 mt-1">Ingresa los datos paso a paso para registrar el servicio.</p>
+        <div class="modal-form-heading">
+          <div class="modal-form-heading-icon"><i class="ri-file-add-line"></i></div>
+          <div>
+            <p class="modal-form-eyebrow">REGISTRO DE SERVICIO</p>
+            <h3 class="card-title text-2xl">Nuevo mantenimiento</h3>
+            <p class="text-sm text-base-content/60 mt-1">Completa la información del vehículo, el chofer y el servicio.</p>
+          </div>
         </div>
-        <button class="btn btn-ghost btn-circle" type="button" aria-label="Cerrar formulario" @click="$emit('cerrar')">
+        <button class="btn btn-ghost btn-circle modal-form-close" type="button" aria-label="Cerrar formulario" @click="$emit('cerrar')">
           <i class="ri-close-line ri-xl"></i>
         </button>
       </div>
 
       <form @submit.prevent="guardar" class="modal-form">
-        <div class="tabs tabs-bordered" role="tablist">
-          <button type="button" class="tab tab-bordered tab-bordered-active" @click="pasoActual = 1" :class="{ 'tab-bordered-active': pasoActual === 1 }">
-            <i class="ri-truck-line"></i> Vehículo
+        <nav class="modal-form-steps" aria-label="Pasos del registro">
+          <button
+            type="button"
+            class="modal-form-step"
+            :class="{ 'modal-form-step-active': pasoActual === 1, 'modal-form-step-complete': pasoActual > 1 }"
+            :aria-current="pasoActual === 1 ? 'step' : undefined"
+            aria-controls="vehiculo-panel"
+            @click="pasoActual = 1"
+          >
+            <span class="modal-form-step-number"><i v-if="pasoActual > 1" class="ri-check-line"></i><template v-else>1</template></span>
+            <span class="modal-form-step-copy"><strong>Vehículo</strong><small>Datos de la unidad</small></span>
           </button>
-          <button type="button" class="tab tab-bordered" @click="pasoActual = 2" :class="{ 'tab-bordered-active': pasoActual === 2 }">
-            <i class="ri-user-line"></i> Chofer
+          <span class="modal-form-step-connector" :class="{ 'modal-form-step-connector-active': pasoActual > 1 }"></span>
+          <button
+            type="button"
+            class="modal-form-step"
+            :class="{ 'modal-form-step-active': pasoActual === 2, 'modal-form-step-complete': pasoActual > 2 }"
+            :aria-current="pasoActual === 2 ? 'step' : undefined"
+            aria-controls="chofer-panel"
+            @click="pasoActual = 2"
+          >
+            <span class="modal-form-step-number"><i v-if="pasoActual > 2" class="ri-check-line"></i><template v-else>2</template></span>
+            <span class="modal-form-step-copy"><strong>Chofer</strong><small>Responsable del servicio</small></span>
           </button>
-          <button type="button" class="tab tab-bordered" @click="pasoActual = 3" :class="{ 'tab-bordered-active': pasoActual === 3 }">
-            <i class="ri-tools-line"></i> Mantenimiento
+          <span class="modal-form-step-connector" :class="{ 'modal-form-step-connector-active': pasoActual > 2 }"></span>
+          <button
+            type="button"
+            class="modal-form-step"
+            :class="{ 'modal-form-step-active': pasoActual === 3 }"
+            :aria-current="pasoActual === 3 ? 'step' : undefined"
+            aria-controls="mantenimiento-panel"
+            @click="pasoActual = 3"
+          >
+            <span class="modal-form-step-number">3</span>
+            <span class="modal-form-step-copy"><strong>Mantenimiento</strong><small>Detalles y seguimiento</small></span>
           </button>
-        </div>
-
-        <section v-show="pasoActual === 1" class="form-section animate-fade-in" aria-labelledby="vehiculo-section-title">
-          <h4 id="vehiculo-section-title" class="form-section-title">
-            <i class="ri-truck-line text-primary"></i> Datos del Vehículo
-          </h4>
+        </nav>
+        <section id="vehiculo-panel" v-show="pasoActual === 1" class="form-section animate-fade-in" aria-labelledby="vehiculo-section-title" role="tabpanel">
+          <div class="form-section-heading">
+            <div class="form-section-title-icon form-section-title-primary"><i class="ri-truck-line"></i></div>
+            <div>
+              <h4 id="vehiculo-section-title" class="form-section-title">Datos del vehículo</h4>
+              <p class="form-section-description">Identifica la unidad que recibió el mantenimiento.</p>
+            </div>
+          </div>
           <div class="grid form-grid sm:grid-cols-2">
             <div class="form-field">
               <label class="label">Placa <span class="text-error">*</span></label>
@@ -47,10 +77,14 @@
           </div>
         </section>
 
-        <section v-show="pasoActual === 2" class="form-section animate-fade-in" aria-labelledby="chofer-section-title">
-          <h4 id="chofer-section-title" class="form-section-title">
-            <i class="ri-user-line text-secondary"></i> Datos del Chofer
-          </h4>
+        <section id="chofer-panel" v-show="pasoActual === 2" class="form-section animate-fade-in" aria-labelledby="chofer-section-title" role="tabpanel">
+          <div class="form-section-heading">
+            <div class="form-section-title-icon form-section-title-secondary"><i class="ri-user-line"></i></div>
+            <div>
+              <h4 id="chofer-section-title" class="form-section-title">Datos del chofer</h4>
+              <p class="form-section-description">Registra quién estuvo a cargo del servicio.</p>
+            </div>
+          </div>
           <div class="grid form-grid sm:grid-cols-2">
             <div class="form-field">
               <label class="label">Nombre <span class="text-error">*</span></label>
@@ -63,10 +97,14 @@
           </div>
         </section>
 
-        <section v-show="pasoActual === 3" class="form-section form-section-wide animate-fade-in" aria-labelledby="mantenimiento-section-title">
-          <h4 id="mantenimiento-section-title" class="form-section-title">
-            <i class="ri-tools-line text-accent"></i> Datos del Mantenimiento
-          </h4>
+        <section id="mantenimiento-panel" v-show="pasoActual === 3" class="form-section form-section-wide animate-fade-in" aria-labelledby="mantenimiento-section-title" role="tabpanel">
+          <div class="form-section-heading">
+            <div class="form-section-title-icon form-section-title-accent"><i class="ri-tools-line"></i></div>
+            <div>
+              <h4 id="mantenimiento-section-title" class="form-section-title">Datos del mantenimiento</h4>
+              <p class="form-section-description">Define el próximo servicio y registra los trabajos realizados.</p>
+            </div>
+          </div>
 
           <div class="grid form-grid sm:grid-cols-2">
             <div class="form-field">
@@ -100,15 +138,15 @@
             </div>
           </div>
 
-          <div class="form-subsection">
+          <div class="form-subsection maintenance-supplies-section">
             <div class="form-subsection-heading">
               <div class="form-subsection-icon"><i class="ri-filter-3-line"></i></div>
               <div>
                 <h5>Aceite y filtros</h5>
-                <p>Registra los insumos y servicios realizados.</p>
+                <p>Indica el aceite utilizado y el trabajo realizado en cada filtro.</p>
               </div>
             </div>
-            <div class="maintenance-grid">
+            <div class="maintenance-oil-fields">
               <div class="form-field">
                 <label class="label" for="tipo-aceite">Tipo de aceite</label>
                 <div class="input-with-icon">
@@ -123,25 +161,39 @@
                   <input id="numero-filtro" v-model="numeroFiltroDisplay" type="text" class="input" placeholder="Ej: PH2808" />
                 </div>
               </div>
-              <label class="form-check-card maintenance-check-card">
-                <span class="form-check-icon"><i class="ri-gas-station-line"></i></span>
-                <span class="form-check-copy">
-                  <span>Filtro de combustible</span>
-                  <small>Marca si fue cambiado</small>
-                </span>
-                <input v-model="form.mantenimiento.filtro_combustible" type="checkbox" class="checkbox checkbox-primary" aria-label="Se reemplazó el filtro de combustible" />
-              </label>
-              <div class="form-field air-filter-field">
-                <label class="label" for="filtro-aire-accion">Filtro de aire</label>
-                <div class="select-with-icon">
-                  <i class="ri-windy-line" aria-hidden="true"></i>
-                  <select id="filtro-aire-accion" v-model="form.mantenimiento.filtro_aire_accion" class="select filter-action-select">
-                    <option :value="null">No realizado</option>
-                    <option value="cambiado">Cambiado</option>
-                    <option value="soplado">Soplado</option>
-                  </select>
+            </div>
+
+            <div class="maintenance-filter-group">
+              <div class="maintenance-filter-heading">
+                <h6>Filtros</h6>
+                <span>Selecciona qué servicio se realizó.</span>
+              </div>
+              <div class="maintenance-filter-grid">
+                <label class="form-check-card maintenance-check-card maintenance-filter-option">
+                  <span class="form-check-icon"><i class="ri-gas-station-line"></i></span>
+                  <span class="form-check-copy">
+                    <span>Filtro de combustible</span>
+                    <small>{{ form.mantenimiento.filtro_combustible ? 'Reemplazado en este servicio' : 'Sin cambio en este servicio' }}</small>
+                  </span>
+                  <span class="maintenance-filter-control">
+                    <span>{{ form.mantenimiento.filtro_combustible ? 'Sí' : 'No' }}</span>
+                    <input v-model="form.mantenimiento.filtro_combustible" type="checkbox" class="checkbox checkbox-primary" aria-label="Se reemplazó el filtro de combustible" />
+                  </span>
+                </label>
+                <div class="form-check-card maintenance-filter-option maintenance-air-option">
+                  <span class="form-check-icon"><i class="ri-windy-line"></i></span>
+                  <div class="form-check-copy">
+                    <label for="filtro-aire-accion">Filtro de aire</label>
+                    <small>{{ form.mantenimiento.filtro_aire_accion ? 'Acción registrada para este servicio' : 'Selecciona una acción' }}</small>
+                  </div>
+                  <div class="form-field maintenance-air-control">
+                    <select id="filtro-aire-accion" v-model="form.mantenimiento.filtro_aire_accion" class="select filter-action-select">
+                      <option :value="null">No realizado</option>
+                      <option value="cambiado">Cambiado</option>
+                      <option value="soplado">Soplado</option>
+                    </select>
+                  </div>
                 </div>
-                <small class="filter-action-hint">Selecciona la acción realizada en el filtro.</small>
               </div>
             </div>
           </div>
@@ -163,18 +215,20 @@
         </section>
 
         <div class="modal-form-footer">
-          <button type="button" class="btn btn-ghost" @click="$emit('cerrar')">
+          <button type="button" class="btn btn-ghost modal-form-cancel" @click="$emit('cerrar')">
             Cancelar
           </button>
-          <button type="button" class="btn btn-secondary" @click="pasoAnterior" v-if="pasoActual > 1">
-            <i class="ri-arrow-left-line"></i> Anterior
-          </button>
-          <button type="button" class="btn btn-primary" @click="pasoSiguiente" v-if="pasoActual < 3">
-            Siguiente <i class="ri-arrow-right-line"></i>
-          </button>
-          <button type="submit" class="btn btn-success" v-if="pasoActual === 3" :disabled="guardando">
-            <i class="ri-save-line"></i> {{ guardando ? 'Guardando...' : 'Guardar Todo' }}
-          </button>
+          <div class="modal-form-footer-actions">
+            <button type="button" class="btn btn-ghost" @click="pasoAnterior" v-if="pasoActual > 1">
+              <i class="ri-arrow-left-line"></i> Anterior
+            </button>
+            <button type="button" class="btn btn-primary" @click="pasoSiguiente" v-if="pasoActual < 3">
+              Continuar <i class="ri-arrow-right-line"></i>
+            </button>
+            <button type="submit" class="btn btn-success" v-if="pasoActual === 3" :disabled="guardando">
+              <i class="ri-save-line"></i> {{ guardando ? 'Guardando...' : 'Guardar mantenimiento' }}
+            </button>
+          </div>
         </div>
       </form>
     </div>

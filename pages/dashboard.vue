@@ -11,70 +11,75 @@
     </div>
 
     <div v-if="cargando" class="grid dashboard-stat-grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="stat card-body" v-for="i in 4" :key="i">
-        <div class="skeleton h-4 w-1/4"></div>
-        <div class="skeleton h-8 w-1/2 mt-2"></div>
-        <div class="skeleton h-3 w-3/4 mt-2"></div>
+      <div v-for="i in 4" :key="i" class="card dashboard-stat-card">
+        <div class="dashboard-stat-card-header">
+          <div class="skeleton h-4 w-1/3"></div>
+          <div class="skeleton h-11 w-11 rounded-xl"></div>
+        </div>
+        <div class="skeleton h-9 w-1/3 mt-5"></div>
+        <div class="skeleton h-4 w-2/3 mt-3"></div>
       </div>
     </div>
 
     <div v-else class="grid dashboard-stat-grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="stat card-body">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="stat-title">Total Vehículos</p>
-            <p class="stat-value">{{ stats.total_vehiculos }}</p>
-          </div>
-          <div class="stat-figure bg-primary/10 text-primary">
-            <i class="ri-truck-line ri-2xl"></i>
+      <div class="card dashboard-stat-card dashboard-stat-card-primary">
+        <div class="dashboard-stat-card-header">
+          <p class="stat-title">Total vehículos</p>
+          <div class="stat-figure">
+            <i class="ri-truck-line"></i>
           </div>
         </div>
-        <p class="stat-desc mt-2">{{ stats.por_kilometraje }} por km · {{ stats.por_fecha }} por fecha</p>
-      </div>
-
-      <div class="stat card-body">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="stat-title">Total Choferes</p>
-            <p class="stat-value">{{ stats.total_choferes }}</p>
-          </div>
-          <div class="stat-figure bg-secondary/10 text-secondary">
-            <i class="ri-user-line ri-2xl"></i>
-          </div>
+        <p class="stat-value">{{ stats.total_vehiculos }}</p>
+        <div class="dashboard-stat-card-footer">
+          <span><i class="ri-gauge-line"></i>{{ stats.por_kilometraje }} por km</span>
+          <span><i class="ri-calendar-line"></i>{{ stats.por_fecha }} por fecha</span>
         </div>
       </div>
 
-      <div class="stat card-body">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="stat-title">Mantenimientos Totales</p>
-            <p class="stat-value">{{ stats.total_mantenimientos }}</p>
-          </div>
-          <div class="stat-figure bg-accent/10 text-accent">
-            <i class="ri-tools-line ri-2xl"></i>
+      <div class="card dashboard-stat-card dashboard-stat-card-secondary">
+        <div class="dashboard-stat-card-header">
+          <p class="stat-title">Total choferes</p>
+          <div class="stat-figure">
+            <i class="ri-user-line"></i>
           </div>
         </div>
-        <p class="stat-desc mt-2">{{ stats.mantenimientos_mes_actual }} este mes</p>
+        <p class="stat-value">{{ stats.total_choferes }}</p>
+        <div class="dashboard-stat-card-footer">
+          <span><i class="ri-team-line"></i>Choferes registrados</span>
+        </div>
       </div>
 
-      <div class="stat card-body">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="stat-title">Alertas</p>
-            <p class="stat-value text-error">{{ stats.proximos_vencidos }}</p>
-          </div>
-          <div class="stat-figure bg-error/10 text-error">
-            <i class="ri-alarm-warning-line ri-2xl"></i>
+      <div class="card dashboard-stat-card dashboard-stat-card-accent">
+        <div class="dashboard-stat-card-header">
+          <p class="stat-title">Mantenimientos</p>
+          <div class="stat-figure">
+            <i class="ri-tools-line"></i>
           </div>
         </div>
-        <p class="stat-desc mt-2">Incluye cambios por fecha o kilometraje vencidos</p>
-        <p class="stat-desc">{{ stats.mantenimientos_3_4_dias }} próximos en 3–4 días</p>
+        <p class="stat-value">{{ stats.total_mantenimientos }}</p>
+        <div class="dashboard-stat-card-footer">
+          <span><i class="ri-calendar-check-line"></i>{{ stats.mantenimientos_mes_actual }} este mes</span>
+        </div>
+      </div>
+
+      <div class="card dashboard-stat-card dashboard-stat-card-error">
+        <div class="dashboard-stat-card-header">
+          <p class="stat-title">Alertas</p>
+          <div class="stat-figure">
+            <i class="ri-alarm-warning-line"></i>
+          </div>
+        </div>
+        <p class="stat-value">{{ stats.proximos_vencidos + stats.mantenimientos_por_vencer }}</p>
+        <div class="dashboard-stat-card-footer dashboard-stat-alerts">
+          <span><i class="ri-close-circle-line"></i>{{ stats.proximos_vencidos }} vencidos</span>
+          <span><i class="ri-time-line"></i>{{ stats.mantenimientos_por_vencer }} por vencer</span>
+        </div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-body p-0">
-        <div class="overflow-x-auto">
+        <div class="max-h-[28rem] overflow-auto scrollbar-thin">
           <table class="table table-zebra table-pin-rows w-full responsive-table">
             <thead>
               <tr>
@@ -144,7 +149,7 @@
       </div>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-2">
+    <div class="grid gap-4 lg:grid-cols-3">
       <div class="card">
         <div class="card-body">
           <h3 class="card-title mb-4 flex items-center gap-2">
@@ -176,26 +181,55 @@
       <div class="card">
         <div class="card-body">
           <h3 class="card-title mb-4 flex items-center gap-2">
-            <i class="ri-time-line text-warning"></i> Mantenimientos en 3–4 días
+            <i class="ri-alarm-warning-line text-error"></i> Vencidos
           </h3>
-          <div v-if="proximos3a4Dias.length === 0" class="text-center py-8 text-base-content/50">
+          <div v-if="mantenimientosVencidos.length === 0" class="text-center py-8 text-base-content/50">
             <i class="ri-calendar-check-line ri-3xl block mb-2"></i>
-            Sin mantenimientos por fecha dentro de 3–4 días
+            No hay mantenimientos vencidos
           </div>
-          <div v-else class="space-y-3 max-h-64 overflow-y-auto">
-            <div v-for="m in proximos3a4Dias" :key="m.id" class="flex items-center justify-between p-3 rounded-field bg-base-200/50 mobile-upcoming-item">
+          <div v-else class="space-y-3 max-h-64 overflow-y-auto scrollbar-thin">
+            <div v-for="v in mantenimientosVencidos" :key="v.id" class="flex items-center justify-between p-3 rounded-field bg-base-200/50 mobile-upcoming-item">
               <div class="flex items-center gap-3">
-                <div class="avatar w-10 h-10 bg-secondary/10 text-secondary">
-                  <i class="ri-calendar-line"></i>
+                <div class="avatar w-10 h-10 bg-error/10 text-error">
+                  <i class="ri-truck-line"></i>
                 </div>
                 <div>
-                  <p class="font-medium">{{ m.placa }}</p>
-                  <p class="text-sm text-base-content/50">{{ m.marca }} {{ m.modelo }}</p>
+                  <p class="font-medium">{{ toUpperCase(v.placa) }}</p>
+                  <p class="text-sm text-base-content/50">{{ toUpperCase(v.marca) }} {{ toUpperCase(v.modelo) }}</p>
                 </div>
               </div>
               <div class="text-right">
-                <p class="text-sm font-medium">{{ formatearFecha(m.proximo_servicio?.fecha || '') }}</p>
-                <p class="text-xs text-base-content/50">En {{ m.proximo_servicio?.dias_restantes }} días</p>
+                <p class="text-sm font-medium">{{ obtenerDetalleServicio(v) }}</p>
+                <p class="text-xs text-error">Vencido</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title mb-4 flex items-center gap-2">
+            <i class="ri-time-line text-warning"></i> Por vencer (3 días)
+          </h3>
+          <div v-if="mantenimientosPorVencer.length === 0" class="text-center py-8 text-base-content/50">
+            <i class="ri-calendar-check-line ri-3xl block mb-2"></i>
+            No hay mantenimientos por vencer en los próximos 3 días
+          </div>
+          <div v-else class="space-y-3 max-h-64 overflow-y-auto scrollbar-thin">
+            <div v-for="v in mantenimientosPorVencer" :key="v.id" class="flex items-center justify-between p-3 rounded-field bg-base-200/50 mobile-upcoming-item">
+              <div class="flex items-center gap-3">
+                <div class="avatar w-10 h-10 bg-warning/10 text-warning">
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <div>
+                  <p class="font-medium">{{ toUpperCase(v.placa) }}</p>
+                  <p class="text-sm text-base-content/50">{{ toUpperCase(v.marca) }} {{ toUpperCase(v.modelo) }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-medium">{{ obtenerDetalleServicio(v) }}</p>
+                <p class="text-xs text-warning">En {{ v.proximo_servicio?.dias_restantes }} días</p>
               </div>
             </div>
           </div>
@@ -206,7 +240,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useDashboard } from '~/composables/useDashboard'
 import { useVehiculos } from '~/composables/useVehiculos'
 import { useTextNormalize } from '~/composables/useTextNormalize'
@@ -222,31 +256,43 @@ const stats = ref({
   total_mantenimientos: 0,
   mantenimientos_mes_actual: 0,
   proximos_vencidos: 0,
-  mantenimientos_3_4_dias: 0,
+  mantenimientos_por_vencer: 0,
   por_kilometraje: 0,
   por_fecha: 0
 })
 
 const proximasRevisiones = ref<VehiculoConSeguimiento[]>([])
 const cargando = ref(true)
+const cambiosMantenimiento = useState<number>('cambios-mantenimiento', () => 0)
 
 const fechaActual = computed(() => new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }))
 
-const proximos3a4Dias = computed(() => {
+const mantenimientosVencidos = computed(() => {
+  return proximasRevisiones.value
+    .filter(v => v.proximo_servicio?.vencido)
+})
+
+const mantenimientosPorVencer = computed(() => {
   return proximasRevisiones.value
     .filter(v =>
       v.tipo_seguimiento === 'fecha' &&
       v.proximo_servicio?.dias_restantes !== null &&
       v.proximo_servicio?.dias_restantes !== undefined &&
-      v.proximo_servicio.dias_restantes >= 3 &&
-      v.proximo_servicio.dias_restantes <= 4
+      v.proximo_servicio.dias_restantes >= 0 &&
+      v.proximo_servicio.dias_restantes <= 3
     )
-    .slice(0, 5)
 })
 
 function formatearFecha(fecha: string): string {
   if (!fecha) return '—'
   return new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+function obtenerDetalleServicio(v: VehiculoConSeguimiento): string {
+  const proximo = v.proximo_servicio
+  if (!proximo) return 'Sin programar'
+  if (v.tipo_seguimiento === 'fecha') return formatearFecha(proximo.fecha || '')
+  return proximo.kilometraje !== null ? `${proximo.kilometraje.toLocaleString()} km` : 'Sin kilometraje'
 }
 
 function obtenerClaseEstado(v: VehiculoConSeguimiento): string {
@@ -290,4 +336,5 @@ async function cargarDatos() {
 }
 
 onMounted(cargarDatos)
+watch(cambiosMantenimiento, cargarDatos)
 </script>

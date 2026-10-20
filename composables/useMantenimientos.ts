@@ -2,6 +2,16 @@ import { supabase } from './useSupabase'
 import type { MantenimientoAceite, MantenimientoConRelaciones, FormDataCompleto } from '~/types/database'
 
 export function useMantenimientos() {
+  function obtenerUltimoPorVehiculo<T extends Pick<MantenimientoAceite, 'vehiculo_id'>>(mantenimientos: T[]): T[] {
+    const ultimosPorVehiculo = new Map<number, T>()
+    for (const mantenimiento of mantenimientos) {
+      if (!ultimosPorVehiculo.has(mantenimiento.vehiculo_id)) {
+        ultimosPorVehiculo.set(mantenimiento.vehiculo_id, mantenimiento)
+      }
+    }
+    return Array.from(ultimosPorVehiculo.values())
+  }
+
   async function obtenerTodos(): Promise<MantenimientoConRelaciones[]> {
     const { data, error } = await supabase
       .from('mantenimientos_aceite')
@@ -21,16 +31,12 @@ export function useMantenimientos() {
       .from('mantenimientos_aceite')
       .select('*')
       .order('fecha_servicio', { ascending: false })
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
 
     if (error) throw error
 
-    const ultimosPorVehiculo = new Map<number, MantenimientoAceite>()
-    for (const m of data || []) {
-      if (!ultimosPorVehiculo.has(m.vehiculo_id)) {
-        ultimosPorVehiculo.set(m.vehiculo_id, m)
-      }
-    }
-    return Array.from(ultimosPorVehiculo.values())
+    return obtenerUltimoPorVehiculo(data || [])
   }
 
   async function obtenerPorVehiculo(vehiculoId: number): Promise<MantenimientoConRelaciones[]> {
@@ -52,7 +58,6 @@ export function useMantenimientos() {
     const fechaLimite = new Date()
     fechaLimite.setDate(fechaLimite.getDate() + dias)
     const fechaLimiteStr = fechaLimite.toISOString().split('T')[0]
-    const hoy = new Date().toISOString().split('T')[0]
 
     const { data, error } = await supabase
       .from('mantenimientos_aceite')
@@ -61,11 +66,17 @@ export function useMantenimientos() {
         vehiculo:vehiculos(*),
         chofer:choferes(*)
       `)
-      .or(`proxima_revision.lte.${fechaLimiteStr},proximo_kilometraje.not.is.null`)
-      .order('proxima_revision', { ascending: true })
+      .order('fecha_servicio', { ascending: false })
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
 
     if (error) throw error
-    return data || []
+    return obtenerUltimoPorVehiculo(data || [])
+      .filter(m =>
+        (m.proxima_revision !== null && m.proxima_revision <= fechaLimiteStr) ||
+        m.proximo_kilometraje !== null
+      )
+      .sort((a, b) => (a.proxima_revision || '').localeCompare(b.proxima_revision || ''))
   }
 
   async function obtenerVencidos(): Promise<MantenimientoConRelaciones[]> {
@@ -78,13 +89,14 @@ export function useMantenimientos() {
         vehiculo:vehiculos(*),
         chofer:choferes(*)
       `)
-      .or(`proxima_revision.lt.${hoy},proximo_kilometraje.not.is.null`)
-      .order('proxima_revision', { ascending: true })
+      .order('fecha_servicio', { ascending: false })
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
 
     if (error) throw error
 
     const vencidos: MantenimientoConRelaciones[] = []
-    for (const m of data || []) {
+    for (const m of obtenerUltimoPorVehiculo(data || [])) {
       if (m.proxima_revision && m.proxima_revision < hoy) {
         vencidos.push(m)
       } else if (m.proximo_kilometraje !== null && m.kilometraje !== null && m.kilometraje >= m.proximo_kilometraje) {

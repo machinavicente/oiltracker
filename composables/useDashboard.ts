@@ -44,12 +44,12 @@ export function useDashboard() {
       total_mantenimientos: mantenimientos.length,
       mantenimientos_mes_actual: mantenimientosMesActual,
       proximos_vencidos: vehiculos.filter(v => v.proximo_servicio?.vencido).length,
-      mantenimientos_3_4_dias: vehiculos.filter(v =>
+      mantenimientos_por_vencer: vehiculos.filter(v =>
         v.tipo_seguimiento === 'fecha' &&
         v.proximo_servicio?.dias_restantes !== null &&
         v.proximo_servicio?.dias_restantes !== undefined &&
-        v.proximo_servicio.dias_restantes >= 3 &&
-        v.proximo_servicio.dias_restantes <= 4
+        v.proximo_servicio.dias_restantes >= 0 &&
+        v.proximo_servicio.dias_restantes <= 3
       ).length,
       por_kilometraje: porKilometraje,
       por_fecha: porFecha

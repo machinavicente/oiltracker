@@ -7,58 +7,44 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-body p-0">
-        <div class="overflow-x-auto">
-          <table class="table table-zebra table-pin-rows w-full responsive-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Mantenimientos</th>
-                <th>Último Servicio</th>
-                <th class="w-24">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="c in choferes" :key="c.id">
-                <td class="mobile-table-wide" data-label="Chofer">
-                  <div class="flex items-center gap-3">
-                    <div class="avatar w-12 h-12 bg-secondary/10 text-secondary text-xl">
-                      {{ toUpperCase(c.nombre[0]) }}{{ toUpperCase(c.apellido[0]) }}
-                    </div>
-                    <div>
-                      <p class="font-medium">{{ toUpperCase(c.nombre) }} {{ toUpperCase(c.apellido) }}</p>
-                    </div>
-                  </div>
-                </td>
-                <td data-label="Mantenimientos">
-                  <span class="badge badge-secondary">{{ c.total_mantenimientos || 0 }}</span>
-                </td>
-                <td data-label="Último servicio">
-                  <span v-if="c.ultimo_servicio" class="text-base-content/70">{{ formatearFecha(c.ultimo_servicio) }}</span>
-                  <span v-else class="text-base-content/40 italic">Sin registros</span>
-                </td>
-                <td class="mobile-table-actions" data-label="Acciones">
-                  <div class="flex items-center gap-1">
-                    <button class="btn btn-ghost btn-circle" type="button" :aria-label="`Editar chofer ${c.nombre} ${c.apellido}`" title="Editar" @click="editar(c)">
-                      <i class="ri-edit-line ri-lg"></i>
-                    </button>
-                    <button class="btn btn-ghost btn-circle text-error" type="button" :aria-label="`Eliminar chofer ${c.nombre} ${c.apellido}`" title="Eliminar" @click="eliminar(c)">
-                      <i class="ri-delete-bin-line ri-lg"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="choferes.length === 0" class="empty-table-row">
-                <td colspan="4" class="text-center py-12 text-base-content/50">
-                  <i class="ri-user-line ri-3xl block mb-2"></i>
-                  No hay choferes registrados
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <div v-if="choferes.length > 0" class="records-grid">
+      <article v-for="c in choferes" :key="c.id" class="card record-card">
+        <header class="record-card-header">
+          <div class="record-card-identity">
+            <div class="avatar w-12 h-12 bg-secondary/10 text-secondary text-xl">
+              {{ toUpperCase(c.nombre[0]) }}{{ toUpperCase(c.apellido[0]) }}
+            </div>
+            <div class="min-w-0">
+              <h2 class="record-card-title">{{ toUpperCase(c.nombre) }} {{ toUpperCase(c.apellido) }}</h2>
+              <p class="record-card-subtitle">Chofer</p>
+            </div>
+          </div>
+          <div class="record-card-actions">
+            <button class="btn btn-ghost btn-circle" type="button" :aria-label="`Editar chofer ${c.nombre} ${c.apellido}`" title="Editar" @click="editar(c)">
+              <i class="ri-edit-line ri-lg"></i>
+            </button>
+            <button class="btn btn-ghost btn-circle text-error" type="button" :aria-label="`Eliminar chofer ${c.nombre} ${c.apellido}`" title="Eliminar" @click="eliminar(c)">
+              <i class="ri-delete-bin-line ri-lg"></i>
+            </button>
+          </div>
+        </header>
+
+        <dl class="record-card-details">
+          <div class="record-card-detail">
+            <dt>Mantenimientos</dt>
+            <dd><span class="badge badge-secondary">{{ c.total_mantenimientos }}</span></dd>
+          </div>
+          <div class="record-card-detail">
+            <dt>Último servicio</dt>
+            <dd v-if="c.ultimo_servicio">{{ formatearFecha(c.ultimo_servicio) }}</dd>
+            <dd v-else class="text-base-content/40">Sin registros</dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+    <div v-else-if="!cargando" class="card record-empty">
+      <i class="ri-user-line ri-3xl"></i>
+      <p>No hay choferes registrados</p>
     </div>
 
     <ModalEdicionRegistro
@@ -82,7 +68,7 @@ import type { Chofer } from '~/types/database'
 
 const { obtenerTodos, eliminar: eliminarChofer } = useChoferes()
 const { obtenerTodos: obtenerMantenimientos } = useMantenimientos()
-const { toUpperCase, capitalize } = useTextNormalize()
+const { toUpperCase } = useTextNormalize()
 
 interface ChoferConStats extends Chofer {
   total_mantenimientos: number

@@ -54,7 +54,7 @@
       </NuxtLink>
     </nav>
 
-    <ModalFormulario v-if="mostrarModal" @cerrar="mostrarModal = false" @guardado="mostrarModal = false" />
+    <ModalFormulario v-if="mostrarModal" @cerrar="mostrarModal = false" @guardado="manejarGuardado" />
   </div>
 </template>
 
@@ -63,4 +63,10 @@ import { ref } from 'vue'
 import ModalFormulario from '~/components/ModalFormulario.vue'
 
 const mostrarModal = ref(false)
+const cambiosMantenimiento = useState('cambios-mantenimiento', () => 0)
+
+function manejarGuardado() {
+  cambiosMantenimiento.value++
+  mostrarModal.value = false
+}
 </script>
